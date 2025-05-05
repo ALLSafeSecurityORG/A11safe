@@ -1,0 +1,6 @@
+Flask
+gunicorn
+cryptography
+requests
+discord 
+watchdog

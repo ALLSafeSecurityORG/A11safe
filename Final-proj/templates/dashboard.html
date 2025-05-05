@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ALLSafe - Cybersecurity Hub</title>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+        @import url('https://fonts.googleapis.com/css2?family=Consolas&display=swap');
+
+
+        body {
+
+            font-family: 'Roboto', sans-serif;
+
+            margin: 0;
+
+            padding: 0;
+
+            background: #000;
+
+            color: #eee;
+
+            /* Removed overflow: hidden; to enable scrolling */
+
+        }
+
+
+        /* Matrix Canvas Styling */
+
+        #matrix {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            z-index: -1;
+
+            opacity: 0.7;
+
+        }
+
+
+        h1, h2, h3 {
+
+            font-family: 'Orbitron', sans-serif;
+
+            color: #00ffcc;
+
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8), 0 0 20px rgba(0, 255, 0, 0.7);
+
+        }
+
+
+        nav {
+
+            background-color: rgba(0, 0, 0, 0.85);
+
+            padding: 15px 20px;
+
+            text-align: center;
+
+            position: relative;
+
+            box-shadow: 0 4px 10px rgba(0, 255, 0, 0.2);
+
+            font-family: 'Consolas', monospace;
+
+        }
+
+
+        nav a {
+
+            color: #00ffcc;
+
+            margin: 0 15px;
+
+            text-decoration: none;
+
+            font-size: 1.1em;
+
+            text-transform: uppercase;
+
+            transition: color 0.3s ease;
+
+        }
+
+
+        nav a:hover {
+
+            color: #00ff00;
+
+            text-shadow: 0 0 10px #00ff00;
+
+        }
+
+
+        .user-dropdown {
+
+            position: absolute;
+
+            right: 20px;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            cursor: pointer;
+
+        }
+
+
+        .user-dropdown-btn {
+
+            background: #00ffcc;
+
+            color: black;
+
+            border: none;
+
+            padding: 10px 20px;
+
+            border-radius: 30px;
+
+            font-size: 1.1em;
+
+            text-transform: uppercase;
+
+            transition: background 0.3s ease;
+
+            font-family: 'Consolas', monospace;
+
+        }
+
+
+        .user-dropdown-btn:hover {
+
+            background: #00ff00;
+
+            text-shadow: 0 0 10px #00ff00;
+
+        }
+
+
+        .user-dropdown-content {
+
+            display: none;
+
+            position: absolute;
+
+            right: 0;
+
+            background-color: #111;
+
+            min-width: 200px;
+
+            box-shadow: 0 4px 6px rgba(0, 255, 0, 0.2);
+
+            border-radius: 5px;
+
+            z-index: 1;
+
+        }
+
+
+        .user-dropdown-content a {
+
+            color: #00ffcc;
+
+            padding: 12px;
+
+            text-decoration: none;
+
+            display: block;
+
+            text-align: left;
+
+        }
+
+
+        .user-dropdown-content a:hover {
+
+            background-color: #222;
+
+            color: #00ff00;
+
+            text-shadow: 0 0 10px #00ff00;
+
+        }
+
+
+        .user-dropdown:hover .user-dropdown-content {
+
+            display: block;
+
+        }
+
+
+        header {
+
+            background-color: rgba(0, 0, 0, 0.7);
+
+            color: #00ffcc;
+
+            padding: 40px 0;
+
+            text-align: center;
+
+            border-bottom: 2px solid #00ff00;
+
+            font-family: 'Orbitron', sans-serif;
+
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+
+        }
+
+
+        header h1 {
+
+            font-size: 3em;
+
+            margin: 0;
+
+        }
+
+
+        header h2 {
+
+            font-size: 1.5em;
+
+            margin: 10px 0;
+
+        }
+
+
+        header p {
+
+            font-size: 1.1em;
+
+        }
+
+
+        .container {
+
+            padding: 40px;
+
+            max-width: 1200px;
+
+            margin: 80px auto;
+
+            background-color: rgba(0, 0, 0, 0.65);
+
+            border-radius: 10px;
+
+            border: 1px solid rgba(0, 255, 0, 0.3);
+
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+
+        section {
+
+            margin-bottom: 60px;
+
+        }
+
+
+        section h2 {
+
+            font-size: 2em;
+
+            color: #00ffcc;
+
+            margin-bottom: 20px;
+
+            text-shadow: 0 0 5px #00ffcc;
+
+        }
+
+
+        .features {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-top: 20px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .feature {
+
+            flex: 1;
+
+            padding: 20px;
+
+            background: #111;
+
+            margin: 10px;
+
+            border-radius: 10px;
+
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+
+            text-align: center;
+
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        }
+
+
+        .feature:hover {
+
+            transform: scale(1.03);
+
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+
+        }
+
+
+        .feature h3 {
+
+            color: #00ff00;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .feature p {
+
+            font-size: 1em;
+
+            color: #ccc;
+
+        }
+
+
+        .call-to-action {
+
+            text-align: center;
+
+            margin: 40px 0;
+
+        }
+
+
+        .call-to-action button {
+
+            background: #00ff00;
+
+            color: black;
+
+            border: none;
+
+            padding: 15px 30px;
+
+            border-radius: 30px;
+
+            font-size: 1.2em;
+
+            cursor: pointer;
+
+            transition: background 0.3s ease;
+
+            font-family: 'Consolas', monospace;
+
+        }
+
+
+        .call-to-action button:hover {
+
+            background: #00cc99;
+
+            text-shadow: 0 0 10px #00cc99;
+
+        }
+
+
+        footer {
+
+            text-align: center;
+
+            padding: 20px;
+
+            background-color: #000;
+
+            color: #00ffcc;
+
+            font-family: 'Consolas', monospace;
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+
+        .design-blocks {
+
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            grid-template-rows: auto auto;
+
+            gap: 30px;
+
+            justify-items: center;
+
+        }
+
+
+        .block {
+
+            background: #111;
+
+            padding: 0;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+
+            transition: transform 0.3s ease;
+
+            overflow: hidden;
+
+            height: 250px; /* Set a fixed block height */
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: flex-start;
+
+        }
+
+
+        .block:hover {
+
+            transform: translateY(-10px);
+
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+
+        }
+
+
+        .block img {
+
+            width: 100%;
+
+            height: 100%; /* Make image take full block height */
+
+            object-fit: cover; /* Ensures it doesn't stretch */
+
+            border-radius: 10px 10px 0 0;
+
+        }
+
+
+        .block p {
+
+            padding: 10px;
+
+            color: #00ffcc;
+
+            font-size: 1.2em;
+
+            background-color: #111;
+
+        }
+
+
+        .block:nth-child(1) {
+
+            grid-column: 1;
+
+            grid-row: 1;
+
+        }
+
+
+        .block:nth-child(2) {
+
+            grid-column: 2;
+
+            grid-row: 1;
+
+        }
+
+
+        .block:nth-child(3) {
+
+            grid-column: 3;
+
+            grid-row: 1;
+
+        }
+
+
+        .block:nth-child(4) {
+
+            grid-column: 2;
+
+            grid-row: 2;
+
+        }
+
+
+        @media (max-width: 768px) {
+
+            .features {
+
+                flex-direction: column;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- Matrix Canvas -->
+
+    <canvas id="matrix"></canvas>
+
+
+    <!-- Navbar -->
+
+    <nav>
+
+        <a href="{{ url_for('routes.ip_lookup') }}">IP_Lookup</a>
+
+        <a href="{{ url_for('routes.note_pad') }}">Online_Notepad</a>
+
+        <a href="{{ url_for('routes.hash_converter_page') }}">Hash_Converter</a>
+
+        <a href="{{ url_for('routes.ssh_console') }}">SSH_Console</a>
+
+        <a href="https://www.github.com" target="_blank">GitHub</a>
+
+
+        <!-- User Dropdown -->
+
+        <div class="user-dropdown">
+
+            <button class="user-dropdown-btn">User</button>
+
+            <div class="user-dropdown-content">
+
+                <a href="{{ url_for('routes.profile') }}">Profile</a>
+
+                <a href="{{ url_for('routes.logout') }}">Log out</a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Header -->
+
+    <header>
+
+        <h1>ALLSafe</h1>
+
+        <h2>Welcome, {{ username }}</h2>
+
+        <p>Explore the world of cybersecurity.</p>
+
+    </header>
+
+
+    <!-- Main Content -->
+
+    <div class="container">
+
+        <!-- Features Section -->
+
+        <section>
+
+            <h2>ALLSafe</h2>
+
+            <div class="features">
+
+                <div class="feature">
+
+                    <h3>ALLSafe Honeypot</h3>
+
+                    <p>ALLSafe is a deceptive security mechanism designed to detect and analyze unauthorized access attempts, helping you stay one step ahead of cyber threats.</p>
+
+                </div>
+
+                <div class="feature">
+
+                    <h3>Real-Time Monitoring</h3>
+
+                    <p>Track suspicious activities live with real-time logging, allowing for immediate detection and response to potential intrusions.</p>
+
+                </div>
+
+                <div class="feature">
+
+                    <h3>Seamless Integration</h3>
+
+                    <p>Easily deploy ALLSafe into any web application with minimal setup—no disruptions, just powerful deception technology.</p>
+
+                </div>                
+
+            </div>
+
+        </section>
+ 
+        <section>
+            <h2>Registered Users</h2>
+            <div style="overflow-x: auto; max-height: 300px; border: 1px solid #00ffcc; border-radius: 10px; padding: 10px;">
+                <table style="width: 100%; border-collapse: collapse; color: #00ffcc; font-family: 'Consolas', monospace; table-layout: fixed;">
+                    <thead>
+                        <tr style="background-color: #111; border-bottom: 2px solid #00ff00;">
+                            <th style="padding: 10px; width: 20%;">Profile Pic</th>
+                            <th style="padding: 10px; width: 40%;">Username</th>
+                            <th style="padding: 10px; width: 40%;">LinkedIn</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr style="border-bottom: 1px solid #00ffcc;">
+                            <td style="padding: 10px; vertical-align: middle; text-align: center;">
+                                {% set user_id = 'user_' + (user[0] | string) %}
+                                {% set filename = user[4].split('/')[-1] if user[4] else 'default.png' %}
+                                {% set pic_path = 'profile_pics/' + user_id + '/' + filename %}
+                                <img src="{{ url_for('static', filename=pic_path) }}" alt="Profile Picture" width="40" height="40" style="border-radius: 50%;">
+                            </td>
+                            <td style="padding: 10px; vertical-align: middle; text-align: center;">{{ user[1] }}</td>
+                            <td style="padding: 10px; vertical-align: middle; text-align: center;">
+                                {% if user[3] and user[3] != "None" %}
+                                    <a href="{{ user[3] }}" target="_blank" style="color: #00ffff; text-decoration: none;">{{ user[3] }}</a>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        
+
+        <!-- Design Blocks Section -->
+
+        <section>
+
+            <h2>Features</h2>
+
+            <div class="design-blocks">
+
+                <div class="block">
+
+                    <a href="{{ url_for('routes.ip_lookup') }}" target="_blank">
+
+                        <img src="{{ url_for('static', filename='images/iplookup.jpeg') }}" alt="Car Image">
+
+                        <p>IP Lookup Tool</p>
+
+                    </a>
+
+                </div>
+
+                <div class="block">
+
+                    <a href="{{ url_for('routes.note_pad') }}" target="_blank">
+
+                        <img src="{{ url_for('static', filename='images/notepad.png') }}" alt="Car Image">
+
+                        <p>Online Notepad</p>
+
+                    </a>
+
+                </div>
+
+                <div class="block">
+
+                    <a href="{{ url_for('routes.ssh_console') }}" target="_blank">
+
+                        <img src="{{ url_for('static', filename='images/ssh-console.jpeg') }}" alt="Car Image">
+
+                        <p>ssh console</p>
+
+                    </a>
+
+                </div>
+
+                <div class="block">
+
+                    <a href="{{ url_for('routes.hash_converter_page') }}" target="_blank">
+
+                        <img src="{{ url_for('static', filename='images/hash.jpeg') }}" alt="Car Image">
+
+                        <p>hash_converter</p>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- Footer -->
+
+    <footer>
+
+        <p>Aryan & Priyanshu associations</p>
+
+        <p>© ALLSafe. All rights reserved.</p>
+
+    </footer>
+
+
+    <!-- Matrix Effect Script -->
+
+    <script>
+
+        const canvas = document.getElementById('matrix');
+
+        const ctx = canvas.getContext('2d');
+
+
+        canvas.height = window.innerHeight;
+
+        canvas.width = window.innerWidth;
+
+
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        const fontSize = 14;
+
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+
+
+        for (let x = 0; x < columns; x++) {
+
+            drops[x] = 1;
+
+        }
+
+
+        function draw() {
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+            ctx.fillStyle = '#0F0';
+
+            ctx.font = fontSize + 'px monospace';
+
+
+            for (let i = 0; i < drops.length; i++) {
+
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+
+                    drops[i] = 0;
+
+                }
+
+                drops[i]++;
+
+            }
+
+        }
+
+
+        setInterval(draw, 33);
+
+
+        window.addEventListener('resize', () => {
+
+            canvas.height = window.innerHeight;
+
+            canvas.width = window.innerWidth;
+
+        });
+
+    </script>
+
+</body>
+
+
+</html>

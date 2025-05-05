@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IP Geolocation</title>
+
+    <style>
+
+        /* Global Styles */
+
+        body {
+
+            font-family: 'Courier New', monospace;
+
+            margin: 0;
+
+            padding: 0;
+
+            background: #121212;
+
+            color: #00ff00; /* Hacker-like green text */
+
+            overflow-x: hidden;
+
+            position: relative;
+
+        }
+
+
+        /* Matrix Effect Canvas */
+
+        #matrix {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            z-index: -1;
+
+            opacity: 0.3; /* Adjust opacity to make it subtle */
+
+            pointer-events: none;
+
+        }
+
+
+        h1, h2 {
+
+            color: #00ff00; /* Green text for hacker vibes */
+
+            text-shadow: 2px 2px 4px rgba(0, 255, 0, 0.5);
+
+        }
+
+
+        /* Navbar Styles */
+
+        .navbar {
+
+            background-color: rgba(0, 0, 0, 0.85);
+
+            padding: 10px 20px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            color: #fff;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 1000;
+
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+
+        }
+
+
+        .navbar .logo {
+
+            font-size: 1.8em;
+
+            font-weight: bold;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .navbar .menu {
+
+            display: flex;
+
+            gap: 20px;
+
+        }
+
+
+        .navbar .menu a {
+
+            color: #00ff00;
+
+            text-decoration: none;
+
+            font-size: 1.1em;
+
+            transition: color 0.3s ease;
+
+        }
+
+
+        .navbar .menu a:hover {
+
+            color: #ff6f00;
+
+            text-decoration: underline;
+
+        }
+
+
+        .navbar .hamburger {
+
+            display: none;
+
+            cursor: pointer;
+
+            font-size: 1.8em;
+
+        }
+
+
+        /* Mobile Menu Styles */
+
+        .navbar .mobile-menu {
+
+            display: none;
+
+            flex-direction: column;
+
+            gap: 10px;
+
+            position: absolute;
+
+            top: 50px;
+
+            right: 20px;
+
+            background-color: #007bff;
+
+            padding: 10px;
+
+            border-radius: 8px;
+
+        }
+
+
+        .navbar .mobile-menu a {
+
+            color: #00ff00;
+
+            text-decoration: none;
+
+            font-size: 1.1em;
+
+            transition: color 0.3s ease;
+
+        }
+
+
+        .navbar .mobile-menu a:hover {
+
+            color: #ff6f00;
+
+        }
+
+
+        /* Main Container */
+
+        .container {
+
+            max-width: 900px;
+
+            margin: 0 auto;
+
+            padding: 20px;
+
+            background: rgba(0, 0, 0, 0.7);
+
+            border-radius: 8px;
+
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+            backdrop-filter: blur(5px);
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+
+        /* Header */
+
+        header {
+
+            background-color: rgba(0, 0, 0, 0.8);
+
+            padding: 20px;
+
+            color: #00ff00;
+
+            text-align: center;
+
+            border-radius: 8px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        header h1 {
+
+            margin: 0;
+
+            font-size: 3em;
+
+            font-weight: bold;
+
+        }
+
+
+        header h2 {
+
+            margin: 0;
+
+            font-size: 1.5em;
+
+            font-weight: 300;
+
+        }
+
+
+        /* Search Section */
+
+        .search-container {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .search-container input {
+
+            padding: 15px;
+
+            font-size: 1.1em;
+
+            width: 60%;
+
+            border: 1px solid #00ff00;
+
+            border-radius: 5px;
+
+            margin-right: 10px;
+
+            background-color: #333;
+
+            color: #00ff00;
+
+        }
+
+
+        .search-container button {
+
+            padding: 15px 30px;
+
+            font-size: 1.1em;
+
+            background-color: #00ff00;
+
+            color: #121212;
+
+            border: none;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            transition: background 0.3s ease, transform 0.2s ease;
+
+        }
+
+
+        .search-container button:hover {
+
+            background-color: #ff6f00;
+
+            transform: translateY(-2px);
+
+        }
+
+
+        /* Results Section */
+
+        .results-container {
+
+            background-color: #333;
+
+            border-radius: 8px;
+
+            padding: 20px;
+
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+        }
+
+
+        .results-container h3 {
+
+            color: #00ff00;
+
+        }
+
+
+        .result-item {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            padding: 8px;
+
+            border-bottom: 1px solid #444;
+
+        }
+
+
+        .result-item:last-child {
+
+            border-bottom: none;
+
+        }
+
+
+        /* Footer */
+
+        footer {
+
+            text-align: center;
+
+            padding: 15px;
+
+            background-color: #121212;
+
+            color: #00ff00;
+
+            margin-top: 40px;
+
+            border-radius: 8px;
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+
+        /* Responsive */
+
+        @media (max-width: 768px) {
+
+            .navbar .menu {
+
+                display: none;
+
+            }
+
+
+            .navbar .hamburger {
+
+                display: block;
+
+            }
+
+
+            .navbar .mobile-menu.active {
+
+                display: flex;
+
+            }
+
+
+            .search-container input {
+
+                width: 80%;
+
+            }
+
+
+            .container {
+
+                padding: 15px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Matrix Effect Canvas -->
+
+    <canvas id="matrix"></canvas>
+
+
+    <!-- Navbar -->
+
+    <div class="navbar">
+
+        <div class="logo">GeoLocator</div>
+
+        <div class="menu">
+
+            <a href="{{ url_for('routes.ip_lookup') }}">IP_Lookup</a>
+
+            <a href="{{ url_for('routes.note_pad') }}">Online_Notepad</a>
+
+            <a href="{{ url_for('routes.hash_converter_page') }}">Hash_Converter</a>
+
+            <a href="{{ url_for('routes.ssh_console') }}">SSH_Console</a>
+
+            <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Main Container -->
+
+    <div class="container">
+
+        <!-- Header -->
+
+        <header>
+
+            <h1>IP Geolocation</h1>
+
+            <h2>Find information about any IP Address</h2>
+
+        </header>
+
+
+        <!-- Search Section -->
+
+        <div class="search-container">
+
+            <input type="text" id="ip-input" placeholder="Enter IP address" />
+
+            <button onclick="getIpLocation()">Search</button>
+
+        </div>
+
+
+        <!-- Results Section -->
+
+        <div class="results-container" id="results-container" style="display: none;">
+
+            <h3>IP Location Information</h3>
+
+            <div class="result-item">
+
+                <span>IP Address:</span>
+
+                <span id="result-ip"></span>
+
+            </div>
+
+            <div class="result-item">
+
+                <span>Country:</span>
+
+                <span id="result-country"></span>
+
+            </div>
+
+            <div class="result-item">
+
+                <span>Region:</span>
+
+                <span id="result-region"></span>
+
+            </div>
+
+            <div class="result-item">
+
+                <span>City:</span>
+
+                <span id="result-city"></span>
+
+            </div>
+
+            <div class="result-item">
+
+                <span>Latitude:</span>
+
+                <span id="result-lat"></span>
+
+            </div>
+
+            <div class="result-item">
+
+                <span>Longitude:</span>
+
+                <span id="result-lon"></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Footer -->
+
+    <footer>
+
+        <p>© 2023 IP Geolocation. All rights reserved.</p>
+
+    </footer>
+
+
+    <script>
+
+        // Matrix Digital Rain Effect
+
+        const canvas = document.getElementById('matrix');
+
+        const ctx = canvas.getContext('2d');
+
+
+        canvas.height = window.innerHeight;
+
+        canvas.width = window.innerWidth;
+
+
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        const fontSize = 14;
+
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+
+
+        for (let x = 0; x < columns; x++) {
+
+            drops[x] = 1;
+
+        }
+
+
+        function draw() {
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+            ctx.fillStyle = '#0F0';
+
+            ctx.font = fontSize + 'px monospace';
+
+
+            for (let i = 0; i < drops.length; i++) {
+
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+
+                    drops[i] = 0;
+
+
+                drops[i]++;
+
+            }
+
+        }
+
+
+        setInterval(draw, 33);
+
+
+        // Resize canvas when window is resized
+
+        window.addEventListener('resize', () => {
+
+            canvas.height = window.innerHeight;
+
+            canvas.width = window.innerWidth;
+
+        });
+
+
+        // Function to fetch IP geolocation data
+
+        function getIpLocation() {
+
+            const ip = document.getElementById('ip-input').value;
+
+
+            fetch('/lookup-ip', {
+
+                method: 'POST',
+
+                headers: {
+
+                    'Content-Type': 'application/json'
+
+                },
+
+                body: JSON.stringify({ ip: ip })
+
+            })
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                if (data.error) {
+
+                    alert(data.error);
+
+                } else {
+
+                    document.getElementById('result-ip').innerText = data.ip;
+
+                    document.getElementById('result-country').innerText = data.country_name;
+
+                    document.getElementById('result-region').innerText = data.state_prov;
+
+                    document.getElementById('result-city').innerText = data.city;
+
+                    document.getElementById('result-lat').innerText = data.latitude;
+
+                    document.getElementById('result-lon').innerText = data.longitude;
+
+                    document.getElementById('results-container').style.display = 'block';
+
+                }
+
+            })
+
+            .catch(error => {
+
+                alert('Failed to fetch IP data.');
+
+                console.error('Error:', error);
+
+            });
+
+        }
+
+
+        // Toggle the mobile menu
+
+        function toggleMenu() {
+
+            const menu = document.getElementById('mobile-menu');
+
+            menu.classList.toggle('active');
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+ 

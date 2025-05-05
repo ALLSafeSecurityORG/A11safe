@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <title>Admin Login</title>
+
+    <style>
+
+        /* Body and container */
+
+        body {
+
+            margin: 0;
+
+            padding: 0;
+
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+
+            font-family: 'Courier New', monospace;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            height: 100vh;
+
+            color: #00ffcc;
+
+            overflow: hidden;
+
+            position: relative;
+
+        }
+
+
+        /* Matrix canvas */
+
+        canvas#matrix {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            z-index: 0;
+
+            opacity: 0.3;
+
+            pointer-events: none;
+
+        }
+
+
+        /* Login box */
+
+        .login-box {
+
+            background: rgba(0, 0, 0, 0.8);
+
+            padding: 40px;
+
+            border-radius: 12px;
+
+            box-shadow: 0 0 20px #00ffcc;
+
+            width: 350px;
+
+            text-align: center;
+
+            animation: fadeIn 1s ease-in-out;
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+
+        .login-box h2 {
+
+            margin-bottom: 25px;
+
+            color: #00ffcc;
+
+            font-size: 24px;
+
+            text-shadow: 0 0 5px #00ffcc;
+
+        }
+
+
+        .login-box input {
+
+            width: 100%;
+
+            padding: 12px 15px;
+
+            margin: 10px 0;
+
+            border: none;
+
+            border-radius: 5px;
+
+            background-color: #1c1c1c;
+
+            color: #00ffcc;
+
+            font-size: 16px;
+
+            box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.3);
+
+        }
+
+
+        .login-box input::placeholder {
+
+            color: #999;
+
+        }
+
+
+        .login-box button {
+
+            padding: 12px;
+
+            background: #00ffcc;
+
+            color: #121212;
+
+            border: none;
+
+            border-radius: 5px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: background 0.3s, transform 0.2s;
+
+            box-shadow: 0 4px 10px rgba(0, 255, 255, 0.4);
+
+        }
+
+
+        .login-box button:hover {
+
+            background: #00bfa6;
+
+            transform: translateY(-2px);
+
+        }
+
+
+        @keyframes fadeIn {
+
+            from { opacity: 0; transform: scale(0.9); }
+
+            to { opacity: 1; transform: scale(1); }
+
+        }
+
+
+        @media (max-width: 400px) {
+
+            .login-box {
+
+                width: 90%;
+
+                padding: 30px 20px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <canvas id="matrix"></canvas>
+
+
+    <form method="POST" action="{{ url_for('routes.admin_login') }}" class="login-box">
+
+        <h2>Admin Login</h2>
+
+        <input type="text" name="username" placeholder="Username" required />
+
+        <input type="password" name="password" placeholder="Password" required />
+
+        <button type="submit">Login</button>
+
+    </form>
+
+
+    <script>
+
+        // Matrix effect on #matrix canvas
+
+        (function() {
+
+            const canvas = document.getElementById('matrix');
+
+            const ctx = canvas.getContext('2d');
+
+
+            // Set canvas full screen
+
+            function setSize() {
+
+                canvas.width = window.innerWidth;
+
+                canvas.height = window.innerHeight;
+
+            }
+
+            setSize();
+
+            window.addEventListener('resize', setSize);
+
+
+            const letters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+
+            const fontSize = 16;
+
+            const columns = Math.floor(canvas.width / fontSize);
+
+            const drops = Array(columns).fill(1);
+
+
+            function draw() {
+
+                // translucent black background to create fading effect
+
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+                ctx.fillStyle = '#00ffcc'; // matrix greenish color
+
+                ctx.font = fontSize + 'px Courier New';
+
+
+                for (let i = 0; i < drops.length; i++) {
+
+                    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+
+                    // reset drop y position randomly after reaching screen bottom 
+
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+
+                        drops[i] = 0;
+
+                    }
+
+                    drops[i]++;
+
+                }
+
+            }
+
+
+            setInterval(draw, 45);
+
+        })();
+
+    </script>
+
+</body>
+
+</html>

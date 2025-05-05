@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hash Converter - Encryption & Decryption</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #222222, #0d1b2a);
+            color: #00ff00;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        #matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+            background: black;
+        }
+
+        .navbar {
+            background-color: rgba(20, 2, 29, 0.8);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #00ff00;
+        }
+
+        .navbar-links a {
+            text-decoration: none;
+            color: #00ff00;
+            font-size: 1.2em;
+            margin-right: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            color: #ff00ff;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 30px;
+            background: rgba(10, 10, 10, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            width: 100%;
+            border: 2px solid #00ff00;
+            z-index: 1;
+        }
+
+        select,
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background-color: #111;
+            color: #00ff00;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        select:focus,
+        textarea:focus,
+        input[type="text"]:focus {
+            border-color: #ff00ff;
+            background-color: #222;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            color: #fff;
+        }
+
+        .encrypt-btn {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .decrypt-btn {
+            background-color: #ff0000;
+        }
+
+        .encrypt-btn:hover {
+            background-color: #00cc00;
+        }
+
+        .decrypt-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #222;
+            border-radius: 5px;
+            word-wrap: break-word;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            color: #00ff00;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #00ff00;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 20px;
+            }
+
+            .navbar-links a {
+                font-size: 1em;
+                margin-right: 10px;
+            }
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .flicker {
+            animation: flicker 3s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="matrix"></canvas>
+
+    <div class="navbar flicker">
+        <div class="logo">Hash Converter</div>
+        <div class="navbar-links">
+            <a href="{{ url_for('routes.ip_lookup') }}">IP_Lookup</a>
+            <a href="{{ url_for('routes.note_pad') }}">Online_Notepad</a>
+            <a href="{{ url_for('routes.hash_converter_page') }}">Hash_Converter</a>
+            <a href="{{ url_for('routes.ssh_console') }}">SSH_Console</a>
+            <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="flicker">Encrypt & Decrypt Messages</h2>
+        <form method="POST">
+            <label for="method">Select Algorithm:</label>
+            <select name="method" id="method" required>
+                <option value="aes">AES (CBC)</option>
+                <option value="base64">Base64</option>
+                <option value="rot13">ROT13</option>
+                <option value="md5">MD5 (Encrypt Only)</option>
+                <option value="sha1">SHA1 (Encrypt Only)</option>
+                <option value="sha256">SHA256 (Encrypt Only)</option>
+            </select>
+
+            <label for="key" id="key-label" style="display: none;">AES Key:</label>
+            <input type="text" name="key" id="key-input" placeholder="Enter key (required for AES)" style="display: none;" />
+
+            <label for="text">Your Text:</label>
+            <textarea name="text" id="text" placeholder="Enter text here..." required></textarea>
+
+            <button type="submit" name="action" value="encrypt" class="encrypt-btn">Encrypt</button>
+            <button type="submit" name="action" value="decrypt" class="decrypt-btn">Decrypt</button>
+        </form>
+
+        {% if encrypted_text %}
+        <div class="result">
+            <strong>Encrypted Text ({{ method|capitalize }}):</strong>
+            <p>{{ encrypted_text }}</p>
+        </div>
+        {% endif %}
+
+        {% if decrypted_text %}
+        <div class="result">
+            <strong>Decrypted Text ({{ method|capitalize }}):</strong>
+            <p>{{ decrypted_text }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Matrix Rain
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const katakana = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789';
+        const fontSize = 18;
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = [];
+
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * canvas.height / fontSize);
+        }
+
+        ctx.font = fontSize + "px monospace";
+
+        function draw() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < columns; i++) {
+                const text = katakana.charAt(Math.floor(Math.random() * katakana.length));
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                drops[i]++;
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+            }
+        }
+
+        setInterval(draw, 40);
+
+        // AES Key visibility toggle
+        const methodSelect = document.getElementById('method');
+        const keyInput = document.getElementById('key-input');
+        const keyLabel = document.getElementById('key-label');
+
+        methodSelect.addEventListener('change', () => {
+            const isAES = methodSelect.value === 'aes';
+            keyInput.style.display = isAES ? 'block' : 'none';
+            keyLabel.style.display = isAES ? 'block' : 'none';
+        });
+
+        // Init on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            methodSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html>

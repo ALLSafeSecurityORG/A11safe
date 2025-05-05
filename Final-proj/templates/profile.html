@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #00ff00;
+            text-align: center;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+        }
+        
+        .form-wrapper {
+               max-width: 90%;
+               margin: 0 auto;
+                    }
+
+        .navbar .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #00ff00;
+        }
+
+        .navbar .menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .menu a {
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: color 0.3s ease;
+        }
+
+        .navbar .menu a:hover {
+            color: #ff6f00;
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 255, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        h2, h3 {
+            color: #00ff00;
+            text-shadow: 2px 2px 5px rgba(0, 255, 0, 0.5);
+        }
+
+        img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #00ff00;
+        }
+
+        p {
+            font-size: 1.1em;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            background: #333;
+            color: #00ff00;
+            font-size: 1em;
+        }
+
+        input[type="file"] {
+            border: none;
+            background: #333;
+            color: #00ff00;
+            font-size: 1em;
+        }
+
+        button {
+            padding: 12px 18px;
+            background: #00ff00;
+            color: #121212;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: #ff6f00;
+            transform: translateY(-2px);
+        }
+
+        .danger {
+            background: red;
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin: 10px 15px;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.1em;
+            border: 1px solid #007bff;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            img {
+                width: 120px;
+                height: 120px;
+            }
+
+            .navbar .menu {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">Profile</div>
+    <div class="menu">
+        <a href="{{ url_for('routes.ip_lookup') }}">IP_Lookup</a>
+
+        <a href="{{ url_for('routes.note_pad') }}">Online_Notepad</a>
+
+        <a href="{{ url_for('routes.hash_converter_page') }}">Hash_Converter</a>
+
+        <a href="{{ url_for('routes.ssh_console') }}">SSH_Console</a>
+
+        <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
+
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <h2>User Profile</h2>
+    <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture">
+    
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+
+    <!-- Social Media Links -->
+    <h3>Social Media Links</h3>
+    <div class="social-links">
+        {% if user.facebook %}
+            <a href="{{ user.facebook }}" target="_blank">Facebook</a>
+        {% endif %}
+        {% if user.twitter %}
+            <a href="{{ user.twitter }}" target="_blank">Twitter</a>
+        {% endif %}
+        {% if user.linkedin %}
+            <a href="{{ user.linkedin }}" target="_blank">LinkedIn</a>
+        {% endif %}
+    </div>
+
+    <!-- User Description -->
+    <h3>About Me</h3>
+    <p>{{ user.description }}</p>
+
+
+  <div class="form-wrapper">
+
+    <!-- Update Social Media & Description -->
+    <h3>Update Social Media Links</h3>
+    <form method="POST">
+        <input type="url" name="facebook" placeholder="Facebook Link" value="{{ user.facebook }}">
+        <input type="url" name="twitter" placeholder="Twitter Link" value="{{ user.twitter }}">
+        <input type="url" name="linkedin" placeholder="LinkedIn Link" value="{{ user.linkedin }}">
+        <textarea name="description" placeholder="Describe yourself...">{{ user.description }}</textarea>
+        <button type="submit" name="update_social">Update Profile</button>
+    </form>
+
+    <!-- Change Password -->
+    <h3>Change Password</h3>
+    <form method="POST">
+        <input type="password" name="new_password" placeholder="Enter new password" required>
+        <button type="submit" name="update_password">Update Password</button>
+    </form>
+
+    <!-- Update Profile Picture -->
+    <h3>Update Profile Picture</h3>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="profile_pic" accept="image/*">
+        <button type="submit" name="update_picture">Upload</button>
+    </form>
+  </div>
+
+</div>
+
+</body>
+</html>

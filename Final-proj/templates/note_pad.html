@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Online Notepad</title>
+
+    <style>
+
+        body {
+
+            font-family: 'Courier New', monospace;
+
+            margin: 0;
+
+            padding: 0;
+
+            background-color: #1a1a1a;
+
+            color: #00ff00;
+
+            overflow-x: hidden;
+
+            position: relative;
+
+        }
+
+
+        /* Matrix Background Effect */
+
+        #matrix {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            z-index: -1;
+
+            opacity: 0.2;
+
+            pointer-events: none;
+
+        }
+
+
+        /* Navbar */
+
+        .navbar {
+
+            background-color: #0d1f29;
+
+            padding: 10px 20px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            color: #00ff00;
+
+            box-shadow: 0 2px 5px rgba(0, 255, 0, 0.3);
+
+            position: relative;
+
+            z-index: 10;
+
+        }
+
+
+        .logo {
+
+            font-size: 1.8em;
+
+            font-weight: bold;
+
+            text-transform: uppercase;
+
+            text-shadow: 0 0 10px #00ff00;
+
+        }
+
+
+        .navbar-links {
+
+            display: flex;
+
+            align-items: center;
+
+        }
+
+
+        .navbar a {
+
+            text-decoration: none;
+
+            color: #00ff00;
+
+            font-size: 1.2em;
+
+            margin-right: 20px;
+
+            transition: color 0.3s;
+
+        }
+
+
+        .navbar a:hover {
+
+            color: #ff00ff;
+
+        }
+
+
+        /* User Dropdown */
+
+        .user-dropdown {
+
+            position: relative;
+
+            display: inline-block;
+
+        }
+
+
+        .user-dropdown-btn {
+
+            background-color: transparent;
+
+            color: #00ff00;
+
+            border: none;
+
+            padding: 10px;
+
+            cursor: pointer;
+
+            font-size: 1.1em;
+
+            transition: color 0.3s;
+
+        }
+
+
+        .user-dropdown-btn:hover {
+
+            color: #ff00ff;
+
+        }
+
+
+        .user-dropdown-content {
+
+            display: none;
+
+            position: absolute;
+
+            background-color: #222;
+
+            min-width: 150px;
+
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+
+            border-radius: 5px;
+
+            right: 0;
+
+            z-index: 1000;
+
+        }
+
+
+        .user-dropdown-content a {
+
+            color: #00ff00;
+
+            padding: 10px;
+
+            text-decoration: none;
+
+            display: block;
+
+            transition: background-color 0.3s;
+
+        }
+
+
+        .user-dropdown-content a:hover {
+
+            background-color: #00ff00;
+
+            color: #000;
+
+        }
+
+
+        .user-dropdown:hover .user-dropdown-content {
+
+            display: block;
+
+        }
+
+
+        /* Main Container */
+
+        .container {
+
+            max-width: 900px;
+
+            margin: 0 auto;
+
+            padding: 20px;
+
+            position: relative;
+
+            z-index: 5;
+
+        }
+
+
+        header {
+
+            background-color: #0d1f29;
+
+            padding: 20px;
+
+            color: #00ff00;
+
+            text-align: center;
+
+            border-radius: 8px;
+
+            margin-bottom: 20px;
+
+            text-shadow: 0 0 10px #00ff00;
+
+        }
+
+
+        .note-container {
+
+            background-color: #222;
+
+            border-radius: 8px;
+
+            padding: 20px;
+
+            box-shadow: 0 4px 10px rgba(0, 255, 0, 0.3);
+
+        }
+
+
+        .toolbar {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .toolbar button {
+
+            background-color: #0d1f29;
+
+            color: #00ff00;
+
+            border: none;
+
+            padding: 10px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 1.1em;
+
+            transition: background-color 0.3s;
+
+        }
+
+
+        .toolbar button:hover {
+
+            background-color: #00ff00;
+
+            color: #222;
+
+        }
+
+
+        .note-container div[contenteditable] {
+
+            width: 100%;
+
+            min-height: 400px;
+
+            font-size: 1.2em;
+
+            padding: 15px;
+
+            border: 1px solid #444;
+
+            border-radius: 5px;
+
+            resize: none;
+
+            font-family: 'Courier New', monospace;
+
+            background-color: #1a1a1a;
+
+            color: #00ff00;
+
+            white-space: pre-wrap;
+
+            text-shadow: 0 0 5px #00ff00;
+
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+
+        }
+
+
+        footer {
+
+            text-align: center;
+
+            padding: 15px;
+
+            background-color: #0d1f29;
+
+            color: #00ff00;
+
+            margin-top: 40px;
+
+            position: relative;
+
+            z-index: 5;
+
+        }
+
+
+        /* Right-click menu styles */
+
+        #context-menu {
+
+            position: absolute;
+
+            display: none;
+
+            background-color: #222;
+
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+            border-radius: 8px;
+
+            z-index: 9999;
+
+            padding: 5px 0;
+
+        }
+
+
+        #context-menu button {
+
+            background-color: #222;
+
+            border: none;
+
+            padding: 10px 20px;
+
+            cursor: pointer;
+
+            text-align: left;
+
+            width: 150px;
+
+            display: block;
+
+            color: #00ff00;
+
+            transition: background-color 0.3s;
+
+        }
+
+
+        #context-menu button:hover {
+
+            background-color: #00ff00;
+
+            color: #222;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- Matrix Background Canvas -->
+
+    <canvas id="matrix"></canvas>
+
+
+    <!-- Navbar -->
+
+    <div class="navbar">
+
+        <div class="logo">Notepad</div>
+
+        <div class="navbar-links">
+
+            <a href="{{ url_for('routes.ip_lookup') }}">IP_Lookup</a>
+
+            <a href="{{ url_for('routes.note_pad') }}">Online_Notepad</a>
+
+            <a href="{{ url_for('routes.hash_converter_page') }}">Hash_Converter</a>
+
+            <a href="{{ url_for('routes.ssh_console') }}">SSH_Console</a>
+
+            <a href="https://www.github.com" target="_blank">GitHub</a>    
+
+            <a href="dashboard">Dashboard</a>
+
+            <div class="user-dropdown">
+
+                <button class="user-dropdown-btn">User ▼</button>
+
+                <div class="user-dropdown-content">
+
+                    <a href="{{ url_for('routes.profile') }}">Profile</a>
+
+                    <a href="{{ url_for('routes.logout') }}">Log out</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Main Container -->
+
+    <div class="container">
+
+        <header>
+
+            <h1>Online Notepad</h1>
+
+            <h2>Write your thoughts and save them here</h2>
+
+        </header>
+
+
+        <!-- Toolbar -->
+
+        <div class="toolbar">
+
+            <button onclick="cutText()">✂ Cut</button>
+
+            <button onclick="copyText()">📋 Copy</button>
+
+            <button onclick="pasteText()">📥 Paste</button>
+
+            <button onclick="saveNote()">💾 Save</button>
+
+            <button onclick="changeFontSize()">🔼 Font Size</button>
+
+            <button onclick="toggleBold()">B</button>
+
+            <button onclick="toggleItalic()">I</button>
+
+            <button onclick="toggleUnderline()">U</button>
+
+        </div>
+
+
+        <!-- Note Area -->
+
+        <div class="note-container">
+
+            <div id="note-text" contenteditable="true" placeholder="Start writing your notes here..."
+
+                oncontextmenu="showContextMenu(event)"></div>
+
+        </div>
+
+
+        <!-- Footer -->
+
+        <footer>
+
+            <p>© 2025 Online Notepad. All rights reserved.</p>
+
+        </footer>
+
+    </div>
+
+
+    <!-- Right-click Context Menu -->
+
+    <div id="context-menu">
+
+        <button onclick="cutText()">Cut</button>
+
+        <button onclick="copyText()">Copy</button>
+
+        <button onclick="pasteText()">Paste</button>
+
+        <button onclick="toggleBold()">Bold</button>
+
+        <button onclick="toggleItalic()">Italic</button>
+
+        <button onclick="toggleUnderline()">Underline</button>
+
+    </div>
+
+
+    <script>
+
+        // Matrix Digital Rain Effect
+
+        const canvas = document.getElementById('matrix');
+
+        const ctx = canvas.getContext('2d');
+
+
+        canvas.height = window.innerHeight;
+
+        canvas.width = window.innerWidth;
+
+
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        const fontSize = 14;
+
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+
+
+        for (let x = 0; x < columns; x++) {
+
+            drops[x] = 1;
+
+        }
+
+
+        function draw() {
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+            ctx.fillStyle = '#00ff00';
+
+            ctx.font = fontSize + 'px Courier New';
+
+
+            for (let i = 0; i < drops.length; i++) {
+
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+
+                    drops[i] = 0;
+
+
+                drops[i]++;
+
+            }
+
+        }
+
+
+        setInterval(draw, 33);
+
+
+        window.addEventListener('resize', () => {
+
+            canvas.height = window.innerHeight;
+
+            canvas.width = window.innerWidth;
+
+        });
+
+
+        // Existing Functionality
+
+        function cutText() {
+
+            document.execCommand('cut');
+
+        }
+
+
+        function copyText() {
+
+            document.execCommand('copy');
+
+        }
+
+
+        function pasteText() {
+
+            navigator.clipboard.readText().then(text => {
+
+                document.execCommand('insertText', false, text);
+
+            }).catch(err => {
+
+                alert("Failed to paste text: " + err);
+
+            });
+
+        }
+
+
+        function toggleBold() {
+
+            document.execCommand('bold');
+
+        }
+
+
+        function toggleItalic() {
+
+            document.execCommand('italic');
+
+        }
+
+
+        function toggleUnderline() {
+
+            document.execCommand('underline');
+
+        }
+
+
+        function changeFontSize() {
+
+            let fontSize = prompt("Enter font size in pixels (e.g., 16, 20, 24):");
+
+            if (fontSize && !isNaN(fontSize)) {
+
+                document.execCommand('fontSize', false, 7);
+
+                document.querySelectorAll('font[size="7"]').forEach(el => {
+
+                    el.removeAttribute('size');
+
+                    el.style.fontSize = fontSize + "px";
+
+                });
+
+            } else {
+
+                alert("Invalid input! Please enter a number.");
+
+            }
+
+        }
+
+
+        function showContextMenu(event) {
+
+            event.preventDefault();
+
+            let menu = document.getElementById("context-menu");
+
+            menu.style.display = "block";
+
+            menu.style.left = `${event.pageX}px`;
+
+            menu.style.top = `${event.pageY}px`;
+
+        }
+
+
+        window.addEventListener("click", () => {
+
+            document.getElementById("context-menu").style.display = "none";
+
+        });
+
+
+        function logout() {
+
+            if (confirm("Are you sure you want to logout?")) {
+
+                sessionStorage.clear(); // Clear session data
+
+                window.location.href = "login.html"; // Redirect to login page
+
+            }
+
+        }
+
+
+        function saveNote() {
+
+            const content = document.getElementById("note-text").innerText;
+
+            const filename = prompt("Enter a filename (e.g., note.txt):", "my-note.txt");
+
+
+            if (!filename) {
+
+                alert("Filename is required.");
+
+                return;
+
+            }
+
+
+            fetch("/save_note", {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type": "application/json"
+
+                },
+
+                body: JSON.stringify({ content: content, filename: filename })
+
+            })
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                alert(data.message);
+
+            })
+
+            .catch(err => {
+
+                alert("Failed to save note: " + err);
+
+            });
+
+        }
+
+
+        // Optional: Load saved note if exists
+
+        window.onload = function () {
+
+            let saved = localStorage.getItem("savedNote");
+
+            if (saved) {
+
+                document.getElementById("note-text").innerText = saved;
+
+            }
+
+        };
+
+    </script>
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #eee;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF4B2B;
+        }
+
+        .button-group {
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: #FF4B2B;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #ff6f00;
+            transform: translateY(-2px);
+        }
+
+        .log-section {
+            display: none;
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: left;
+            margin: 20px auto;
+            max-width: 95%;
+            height: 750px;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(255, 75, 43, 0.3);
+        }
+
+        .log-section pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+            color: #00ff00;
+        }
+
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛠️ Admin Panel</h1>
+
+    <div class="button-group">
+        <button onclick="showLog('general')">View General Log</button>
+        <button onclick="showLog('attack')">View Attack Log</button>
+        <button onclick="refreshLogs()">🔄 Refresh Logs</button>
+        <button onclick="window.location.href='{{ url_for('routes.download_logs') }}'" style="margin-bottom: 20px; padding: 10px 20px; background-color: #FF4B2B; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            📦 Export Logs (ZIP)
+        </button>                        
+    </div>
+
+    <div id="general-log" class="log-section active">
+        <h2>📘 General Logs (general.log)</h2>
+        <pre id="general-content">{{ general_logs | join('') }}</pre>
+    </div>
+
+    <div id="attack-log" class="log-section">
+        <h2>🚨 Attack Logs (attacks.log)</h2>
+        <pre id="attack-content">{{ attack_logs | join('') }}</pre>
+    </div>
+
+    <script>
+        function showLog(type) {
+            document.getElementById('general-log').classList.remove('active');
+            document.getElementById('attack-log').classList.remove('active');
+
+            if (type === 'general') {
+                document.getElementById('general-log').classList.add('active');
+            } else {
+                document.getElementById('attack-log').classList.add('active');
+            }
+        }
+
+        function refreshLogs() {
+            fetch('/refresh_logs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Error refreshing logs: " + data.error);
+                    } else {
+                        document.getElementById('general-content').textContent = data.general_logs;
+                        document.getElementById('attack-content').textContent = data.attack_logs;
+                        console.log("Logs refreshed successfully.");
+                    }
+                })
+                .catch(err => {
+                    alert("Failed to fetch logs. " + err);
+                });
+        }
+    </script>
+</body>
+</html>
