@@ -182,7 +182,6 @@ def ssh_console():
     
     return render_template("ssh_console.html")
 
-
     # Encryption & Decryption Route
 @routes.route('/hash_converter', methods=['GET', 'POST'])
 def hash_converter_page():
@@ -271,18 +270,32 @@ def profile():
         # Update profile picture
         if "profile_pic" in request.files:
             file = request.files["profile_pic"]
-            if file and allowed_file(file.filename):
+            if file :
+                original_filename = file.filename
                 filename = secure_filename(file.filename)
+
 
                 # Save temporarily for scanning
                 temp_path = os.path.join("temp", filename)
                 os.makedirs("temp", exist_ok=True)
                 file.save(temp_path)
 
+
+              # ✳️ Add malicious file detection
+                user_info = {"name": user["username"], "email": user["email"]}
+                if detect_malicious_upload(original_filename, file.content_type, user_info):
+                   flash("Malicious file upload detected!", "danger")
+                   os.remove(temp_path)
+                   return redirect(url_for("routes.profile"))
+            # ✅ Only allow safe file extensions *after* scan
+                if not allowed_file(original_filename):
+                    flash("Unsupported file type!", "danger")
+                    os.remove(temp_path)
+                    return redirect(url_for("routes.profile"))
+               
                 # Log content for suspicious HTML/JS/PHP
                 with open(temp_path, "r", errors="ignore") as f:
                     content = f.read()
-                    log_content(content, filename)
                     if detect_html_injection(temp_path):
                         flash("Malicious content detected in image!", "danger")
                         os.remove(temp_path)
@@ -349,8 +362,12 @@ def update_profile_pic():
     # DB connection + user info
     conn = get_db_connection()
     user_id = session["user_id"]
-    user = conn.execute("SELECT name, email FROM users WHERE id = ?", (user_id,)).fetchone()
-    user_info = {"name": user["name"], "email": user["email"]}
+    if not user:
+      conn.close()
+      flash("User not found!", "danger")
+      return redirect(url_for("routes.login"))
+    user = conn.execute("SELECT name, email FROM users WHERE id = ?", (user_id,)).fetchone()      
+    user_info = {"name": user["username"], "email": user["email"]}
 
     # ✅ Detect malicious uploads
     if detect_malicious_upload(filename, content_type, user_info):
