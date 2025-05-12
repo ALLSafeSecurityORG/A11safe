@@ -63,15 +63,19 @@ def get_real_ip():
     x_real_ip = request.headers.get("X-Real-IP")
     remote_ip = request.remote_addr
 
-    # 🧪 Debug print to see actual IPs received
-    print("🧪 DEBUG IPs:", x_forwarded_for, x_real_ip, remote_ip)
+    # 🧪 Debug print
+    print("🧪 DEBUG IPs → X-Forwarded-For:", x_forwarded_for, "| X-Real-IP:", x_real_ip, "| Remote IP:", remote_ip)
 
     if is_trusted_proxy(remote_ip) and x_forwarded_for:
-        return x_forwarded_for.split(",")[0].strip()
+        real_ip = x_forwarded_for.split(",")[0].strip()
     elif x_real_ip:
-        return x_real_ip.strip()
+        real_ip = x_real_ip.strip()
     else:
-        return remote_ip
+        real_ip = remote_ip
+
+    print("✅ Selected Real IP:", real_ip)  # Final choice
+    return real_ip
+
 
 
 # ----------------- Utility: Email Alert -----------------
