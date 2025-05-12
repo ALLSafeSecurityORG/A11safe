@@ -70,19 +70,16 @@ def get_real_ip():
     x_real_ip = request.headers.get("X-Real-IP", "")
     remote_ip = request.remote_addr
 
-    # Parse and clean X-Forwarded-For list
     if x_forwarded_for:
+        # Clean and split IPs
         ip_list = [ip.strip() for ip in x_forwarded_for.split(",")]
-        # Return first non-trusted proxy IP
         for ip in ip_list:
-            if not is_trusted_proxy(ip):
-                return ip
+            if ip and not is_trusted_proxy(ip):
+                return ip  # ✅ Return first non-trusted IP
 
-    # Fall back to X-Real-IP if it's set and not trusted
+    # Fallbacks
     if x_real_ip and not is_trusted_proxy(x_real_ip):
-        return x_real_ip.strip()
-
-    # Fall back to remote_addr
+        return x_real_ip
     return remote_ip
 
 
