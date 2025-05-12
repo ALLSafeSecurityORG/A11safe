@@ -7,6 +7,7 @@ from flask import request
 from datetime import datetime
 from threading import Thread
 from email.mime.text import MIMEText
+import magic 
 
 # ============================
 # Email & Discord alert settings
@@ -93,14 +94,29 @@ def detect_malicious_upload(filename, content_type, user_info):
         alerts.append("🚨 Dangerous extension")
     if re.search(r"\.(jpg|jpeg|png|gif)\.(php|html?|exe|js)$", filename, re.IGNORECASE):
         alerts.append("⚠️ Double extension")
+    if re.search(r"\.(php|html?|exe|js)\.(jpg|jpeg|png|gif)$", filename, re.IGNORECASE):
+      alerts.append("🚨 Dangerous extension before image extension (obfuscation)")
     if re.search(r"\.(jpg|jpeg|png|gif)\.[a-z0-9]{1,6}\.(php|html?|exe|js)$", filename, re.IGNORECASE):
         alerts.append("⚠️ Triple extension")
     if re.search(r"%00", filename, re.IGNORECASE):
         alerts.append("🚨 Null byte injection attempt")
     if re.search(r"(?:\x00|\s|%00|\\x00|\/|\\)+", filename, re.IGNORECASE):
         alerts.append("⚠️ Filename obfuscation")
+    # ✅ Enhanced MIME check using python-magic
+    try:
+        magic_mime = magic.Magic(mime=True)
+        temp_file_path = os.path.join("temp", filename)
+        if os.path.exists(temp_file_path):
+            real_mime = magic_mime.from_file(temp_file_path)
+            if not real_mime.startswith("image/"):
+                alerts.append(f"🚨 MIME spoofing (actual: {real_mime})")
+    except Exception as e:
+        alerts.append(f"⚠️ MIME check failed: {e}")
+
+    # If you still want to check browser-supplied MIME:
     if not content_type.startswith("image/"):
-        alerts.append("🚨 MIME spoofing")
+        alerts.append("⚠️ MIME spoofing (browser header)")
+
 
     if alerts:
         headers = dict(request.headers)
