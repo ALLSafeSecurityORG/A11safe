@@ -3,6 +3,7 @@ import logging
 import os
 from middleware.detect_shellcode import detect_shellcode
 from database_setup import get_db_connection
+import re
 
 ssh_bp = Blueprint('ssh_console', __name__)
 
@@ -83,17 +84,36 @@ def ssh_web_command():
                 output += f"Removed {filename}"
             else:
                 output += f"rm: {filename}: No such file"
+
         elif command.startswith("echo "):
             if '>' in command:
-                parts = command.split('>', 1)
-                text = parts[0].replace("echo", "").strip().strip('"')
-                filename = parts[1].strip()
-                path = os.path.join(user_dir, filename)
-                with open(path, 'w') as f:
-                    f.write(text + "\n")
-                output += f"Wrote to {filename}"
+               try:
+                   tokens = shlex.split(command)
+                   if len(tokens) >= 3 and tokens[-2] == '>':
+                     text = " ".join(tokens[1:-2])
+                     filename = tokens[-1]
+                   else:
+                # Handle echo "text" > file
+                       gt_index = tokens.index('>')
+                       text = " ".join(tokens[1:gt_index])
+                       filename = tokens[gt_index + 1]
+
+                   path = os.path.join(user_dir, filename)
+
+            # Prevent directory traversal
+                   if not os.path.abspath(path).startswith(os.path.abspath(user_dir)):
+                        raise ValueError("Invalid filename path")
+
+                   with open(path, 'w') as f:
+                        f.write(text + "\n")
+
+                   output += f"Wrote to {filename}"
+               except Exception as e:
+                    ssh_logger.warning(f"[honeypot] echo command error: {e}")
+                    output += f"Wrote to {filename if 'filename' in locals() else 'file'}"
             else:
-                output += "Invalid echo syntax. Use: echo \"text\" > filename"
+               output += "Invalid echo syntax. Use: echo \"text\" > filename"
+
         elif command == "clear":
             output += "clear_console"
         elif command == "help":
