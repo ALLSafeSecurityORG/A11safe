@@ -49,13 +49,23 @@ if not general_logger.hasHandlers():
 # ----------------- Utility: Geolocation -----------------
 def basic_geolocation(ip):
     try:
-        res = requests.get(f"http://ip-api.com/json/{ip}", timeout=2)
-        if res.status_code == 200:
-            data = res.json()
+        res = requests.get(f"https://ip-api.com/json/{ip}", timeout=2)
+        data = res.json()
+        if data.get("status") == "success":
             return f"{data.get('city', '')}, {data.get('regionName', '')}, {data.get('country', '')}"
     except:
         pass
+
+    # Fallback using ipinfo.io
+    try:
+        res = requests.get(f"https://ipinfo.io/{ip}/json", timeout=2)
+        data = res.json()
+        return f"{data.get('city', '')}, {data.get('region', '')}, {data.get('country', '')}"
+    except:
+        pass
+
     return "Unknown"
+
 
 # ----------------- Utility: Real IP extraction -----------------
 # ----------------- Utility: Check Trusted Proxy -----------------
