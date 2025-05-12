@@ -53,16 +53,17 @@ def basic_geolocation(ip):
         data = res.json()
         if data.get("status") == "success":
             return f"{data.get('city', '')}, {data.get('regionName', '')}, {data.get('country', '')}"
-    except:
-        pass
+        else:
+            general_logger.warning(f"IP-API geolocation failed: {data}")
+    except Exception as e:
+        general_logger.error(f"IP-API error: {e}")
 
-    # Fallback using ipinfo.io
     try:
         res = requests.get(f"https://ipinfo.io/{ip}/json", timeout=2)
         data = res.json()
         return f"{data.get('city', '')}, {data.get('region', '')}, {data.get('country', '')}"
-    except:
-        pass
+    except Exception as e:
+        general_logger.error(f"ipinfo.io error: {e}")
 
     return "Unknown"
 
