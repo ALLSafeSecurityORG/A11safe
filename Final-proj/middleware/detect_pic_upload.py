@@ -64,13 +64,15 @@ def get_real_ip():
         return x_real_ip.strip()
     else:
         return remote_ip
-        
+
 def get_geo_location(ip):
     try:
         res = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
         data = res.json()
+        print(f"[DEBUG] Geolocation response for {ip}: {data}")  # Add this line for debugging
         return f"{data.get('city', 'Unknown')}, {data.get('country_name', 'Unknown')}"
-    except Exception:
+    except Exception as e:
+        print(f"[ERROR] Geo lookup failed for {ip}: {e}")
         return "GeoLookup Failed"
 
 def send_discord_alert(message):
