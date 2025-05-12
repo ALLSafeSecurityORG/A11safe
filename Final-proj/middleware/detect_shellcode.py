@@ -168,6 +168,7 @@ def detect_shellcode(command: str, user_info=None) -> bool:
             filename = request.path.split("/")[-1]
             method = request.method
             url = request.url
+            geo = basic_geolocation(real_ip)
 
             alert_msg = (
               f"REAL_IP       : {real_ip}\n"
