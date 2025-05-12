@@ -61,32 +61,24 @@ def basic_geolocation(ip):
 def is_trusted_proxy(ip):
     try:
         ip_obj = ipaddress.ip_address(ip)
-        return any(ip_obj in ipaddress.ip_network(net) for net in TRUSTED_PROXIES)
+        for net in TRUSTED_PROXIES:
+            if ip_obj in ipaddress.ip_network(net):
+                return True
     except ValueError:
         return False
+    return False
 
 def get_real_ip():
-    x_forwarded_for = request.headers.get("X-Forwarded-For", "")
-    x_real_ip = request.headers.get("X-Real-IP", "")
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    x_real_ip = request.headers.get("X-Real-IP")
     remote_ip = request.remote_addr
 
     if is_trusted_proxy(remote_ip) and x_forwarded_for:
         return x_forwarded_for.split(",")[0].strip()
     elif x_real_ip:
         return x_real_ip.strip()
-    return remote_ip
-
-    # Fallback to access_route + remote_addr
-    route = request.access_route + [request.remote_addr]
-    for addr in route:
-        try:
-            ip_obj = ipaddress.ip_address(addr)
-            if not any(ip_obj in ipaddress.ip_network(proxy) for proxy in TRUSTED_PROXIES):
-                return addr
-        except ValueError:
-            continue
-
-    return request.remote_addr
+    else:
+        return remote_ip
 
 # ----------------- Utility: Email Alert -----------------
 def send_email_alert(subject, body):
