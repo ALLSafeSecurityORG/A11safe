@@ -99,21 +99,6 @@ pip install flask requests
 python app.py
 ```
 
----
-
-## 💬 Formatting Cheat Sheet
-
-| What You Want | Markdown Syntax                      | Example                             | Result                          |
-|---------------|---------------------------------------|-------------------------------------|----------------------------------|
-| **Bold Text** | `**your text**` or `__your text__`   | `**Bold**`                          | **Bold**                         |
-| *Italic Text* | `*your text*` or `_your text_`       | `*Italic*`                          | *Italic*                         |
-| `Code`        | `` `code` ``                         | `` `print("hello")` ``              | `print("hello")`                 |
-| Block Code    | Triple backticks (\`\`\`)            | See below                           | Code block                       |
-| [Link](url)   | `[text](https://example.com)`        | `[Google](https://google.com)`     | [Google](https://google.com)     |
-| Image         | `![alt](image_url)`                  | `![Logo](https://url/logo.png)`    | ![Logo](https://url/logo.png)    |
-| Headings      | `#`, `##`, `###`, etc.               | `### Subheading`                   | ### Subheading                   |
-
----
 
 ## 🧪 Example Code Block
 
