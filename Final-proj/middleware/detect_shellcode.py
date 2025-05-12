@@ -59,15 +59,27 @@ def basic_geolocation(ip):
 
 # ----------------- Utility: Real IP extraction -----------------
 def get_real_ip():
-    route = request.access_route + [request.remote_addr]
-    for addr in route:
-        try:
-            ip_obj = ipaddress.ip_address(addr)
-            if not any(ip_obj in ipaddress.ip_network(proxy) for proxy in TRUSTED_PROXIES):
-                return addr
-        except ValueError:
-            continue
-    return request.remote_addr
+    x_forwarded_for = request.headers.get("X-Forwarded-For", "")
+    if x_forwarded_for:
+        # Split list and reverse to check from client to proxy
+        for ip in [ip.strip() for ip in x_forwarded_for.split(",")]:
+            try:
+                ip_obj = ipaddress.ip_address(ip)
+                if not any(ip_obj in ipaddress.ip_network(proxy) for proxy in TRUSTED_PROXIES):
+                    return ip
+            except ValueError:
+                continue
+
+    # Fall back to remote_addr if nothing valid found
+    try:
+        ip_obj = ipaddress.ip_address(request.remote_addr)
+        if not any(ip_obj in ipaddress.ip_network(proxy) for proxy in TRUSTED_PROXIES):
+            return request.remote_addr
+    except ValueError:
+        pass
+
+    return "Unknown"
+
 
 # ----------------- Utility: Email Alert -----------------
 def send_email_alert(subject, body):
