@@ -59,24 +59,19 @@ def basic_geolocation(ip):
 
 # ----------------- Utility: Real IP extraction -----------------
 def get_real_ip():
-    x_forwarded_for = request.headers.get("X-Forwarded-For", "")
-    x_real_ip = request.headers.get("X-Real-IP", "")
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    x_real_ip = request.headers.get("X-Real-IP")
     remote_ip = request.remote_addr
 
-    if x_forwarded_for:
-        ip_list = [ip.strip() for ip in x_forwarded_for.split(",")]
-        for ip in ip_list:
-            if not is_trusted_proxy(ip):
-                return ip  # ✅ Real client IP (not in trusted proxy ranges)
+    # 🧪 Debug print to see actual IPs received
+    print("🧪 DEBUG IPs:", x_forwarded_for, x_real_ip, remote_ip)
 
-    if x_real_ip and not is_trusted_proxy(x_real_ip):
-        return x_real_ip
-
-    # Fallback
-    if not is_trusted_proxy(remote_ip):
+    if is_trusted_proxy(remote_ip) and x_forwarded_for:
+        return x_forwarded_for.split(",")[0].strip()
+    elif x_real_ip:
+        return x_real_ip.strip()
+    else:
         return remote_ip
-
-    return "Unknown"
 
 
 # ----------------- Utility: Email Alert -----------------
@@ -181,6 +176,7 @@ def detect_shellcode(command: str, user_info=None) -> bool:
             attack_logger.info(alert_msg)
             send_email_alert("🚨 Shellcode Detected", alert_msg)
             send_discord_alert(alert_msg)
+            print("🧪 DEBUG IPs:", x_forwarded_for, x_real_ip, remote_ip)
 
             return True
 
