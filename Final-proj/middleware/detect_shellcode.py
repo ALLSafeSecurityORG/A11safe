@@ -58,6 +58,17 @@ def basic_geolocation(ip):
     return "Unknown"
 
 # ----------------- Utility: Real IP extraction -----------------
+# ----------------- Utility: Check Trusted Proxy -----------------
+def is_trusted_proxy(ip):
+    try:
+        ip_obj = ipaddress.ip_address(ip)
+        for net in TRUSTED_PROXIES:
+            if ip_obj in ipaddress.ip_network(net):
+                return True
+    except ValueError:
+        pass
+    return False
+
 def get_real_and_proxy_ip():
     x_forwarded_for = request.headers.get("X-Forwarded-For", "")
     x_real_ip = request.headers.get("X-Real-IP")
