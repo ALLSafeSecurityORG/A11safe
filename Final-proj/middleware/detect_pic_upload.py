@@ -8,6 +8,7 @@ from datetime import datetime
 from threading import Thread
 from email.mime.text import MIMEText
 import magic 
+import ipaddress
 
 # ============================
 # Email & Discord alert settings
@@ -42,14 +43,28 @@ TRUSTED_PROXIES = [
 # ============================
 # Utility functions
 # ============================
-def get_real_ip():
-    if "X-Forwarded-For" in request.headers:
-        forwarded_for = request.headers.get("X-Forwarded-For")
-        ip = forwarded_for.split(",")[0].strip()
-    else:
-        ip = request.remote_addr or "Unknown"
-    return ip
+def is_trusted_proxy(ip):
+    try:
+        ip_obj = ipaddress.ip_address(ip)
+        for net in TRUSTED_PROXIES:
+            if ip_obj in ipaddress.ip_network(net):
+                return True
+    except ValueError:
+        return False
+    return False
 
+def get_real_ip():
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    x_real_ip = request.headers.get("X-Real-IP")
+    remote_ip = request.remote_addr
+
+    if is_trusted_proxy(remote_ip) and x_forwarded_for:
+        return x_forwarded_for.split(",")[0].strip()
+    elif x_real_ip:
+        return x_real_ip.strip()
+    else:
+        return remote_ip
+        
 def get_geo_location(ip):
     try:
         res = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
