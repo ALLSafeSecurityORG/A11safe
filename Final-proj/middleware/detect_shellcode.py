@@ -176,7 +176,6 @@ def detect_shellcode(command: str, user_info=None) -> bool:
             attack_logger.info(alert_msg)
             send_email_alert("🚨 Shellcode Detected", alert_msg)
             send_discord_alert(alert_msg)
-            print("🧪 DEBUG IPs:", x_forwarded_for, x_real_ip, remote_ip)
 
             return True
 
