@@ -183,6 +183,5 @@ def detect_shellcode(command: str, user_info=None) -> bool:
             send_discord_alert(alert_msg)
 
             return True
-print("🧪 DEBUG IPs:", x_forwarded_for, x_real_ip, remote_ip)
 
     return False
