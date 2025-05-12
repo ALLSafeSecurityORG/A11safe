@@ -58,23 +58,30 @@ def basic_geolocation(ip):
     return "Unknown"
 
 # ----------------- Utility: Real IP extraction -----------------
-def get_real_ip():
-    x_forwarded_for = request.headers.get("X-Forwarded-For")
+def get_real_and_proxy_ip():
+    x_forwarded_for = request.headers.get("X-Forwarded-For", "")
     x_real_ip = request.headers.get("X-Real-IP")
     remote_ip = request.remote_addr
 
-    # 🧪 Debug print
-    print("🧪 DEBUG IPs → X-Forwarded-For:", x_forwarded_for, "| X-Real-IP:", x_real_ip, "| Remote IP:", remote_ip)
+    print("🧪 DEBUG IP chain:")
+    print("X-Forwarded-For:", x_forwarded_for)
+    print("X-Real-IP:", x_real_ip)
+    print("Remote IP:", remote_ip)
 
-    if is_trusted_proxy(remote_ip) and x_forwarded_for:
+    proxy_ip = remote_ip
+    real_ip = None
+
+    if is_trusted_proxy(proxy_ip) and x_forwarded_for:
+        # Take the first IP in the chain, which is the original client IP
         real_ip = x_forwarded_for.split(",")[0].strip()
     elif x_real_ip:
         real_ip = x_real_ip.strip()
     else:
         real_ip = remote_ip
 
-    print("✅ Selected Real IP:", real_ip)  # Final choice
-    return real_ip
+    print("✅ Real IP:", real_ip)
+    print("🛡️ Proxy IP:", proxy_ip)
+    return real_ip, proxy_ip
 
 
 
