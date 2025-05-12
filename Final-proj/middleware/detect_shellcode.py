@@ -134,9 +134,10 @@ def detect_shellcode(command: str, user_info=None) -> bool:
 
     name = user_info.get("name", "Unknown")
     email = user_info.get("email", "Unknown")
-    ip = user_info.get("ip") or get_real_ip()
+    real_ip, proxy_ip = get_real_and_proxy_ip()
+    ip = user_info.get("ip") or real_ip
     geo = user_info.get("geolocation") or basic_geolocation(ip)
-
+ 
     general_logger.info(f"User: {name} | IP: {ip} | Command: {command}")
 
     for pattern in SUSPICIOUS_PATTERNS:
@@ -145,8 +146,6 @@ def detect_shellcode(command: str, user_info=None) -> bool:
             filename = request.path.split("/")[-1]
             method = request.method
             url = request.url
-            real_ip = ip
-            proxy_ip = request.remote_addr
 
             alert_msg = (
               f"REAL_IP       : {real_ip}\n"
