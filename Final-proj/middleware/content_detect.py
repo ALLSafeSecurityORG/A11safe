@@ -14,7 +14,7 @@ GENERAL_LOG = 'logs/general.log'
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "allsafeallsafe612@gmail.com")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "htsneaayrqwutldg")
 RECEIVER_EMAILS = os.getenv("RECEIVER_EMAILS", "unknownzero51@gmail.com,aryanbhandari2431@gmail.com").split(",")
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1371581428738953366/D1dZ3MWbVApZaeW3gJvNsH3pH1kO_m7jM1C0yp")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1367935673419694290/ZsrM2jsXscoda4GrJoPNYRNScJkW8tfa_FmlW5lfEp86VR4n_-AoDtbsRNizvaerRDvN")
 
 # Trusted proxies like Cloudflare
 TRUSTED_PROXIES = [
@@ -256,14 +256,35 @@ def log_content(content, filename):
         message = (
             f"⚠️ **Suspicious Content Detected**\n"
             f"Time: {now}\n"
-            f"IP: {ip}\n"
-            f"GEO: {geo}\n"
-            f"Filename: {filename}\n"
-            f"Content Preview: {content[:100]}...\n"
-            f"Method: {method}\n"
-            f"URL: {url}\n"
-            f"User-Agent: {user_agent}\n"
-            f"Referer: {referer}"
+            f"REAL_IP       : {real_ip}\n"
+            f"PROXY_IP      : {proxy_ip}\n"
+            f"GEOLOCATION   : {geo}\n"
+            f"FILENAME      : {filename}\n"
+            f"METHOD        : {method}\n"
+            f"URL           : {url}\n"
+            f"USER-AGENT    : {headers.get('User-Agent')}\n"
+            f"REFERRER      : {request.referrer}\n"
+            f"HOST          : {headers.get('Host')}\n"
+            f"ORIGIN        : {headers.get('Origin')}\n"
+            f"COOKIE        : {headers.get('Cookie')}\n"
+            f"ACCEPT        : {headers.get('Accept')}\n"
+            f"ACCEPT-LANG   : {headers.get('Accept-Language')}\n"
+            f"ACCEPT-ENC    : {headers.get('Accept-Encoding')}\n"
+            f"CONTENT-TYPE  : {headers.get('Content-Type')}\n"
+            f"CONTENT-LEN   : {headers.get('Content-Length')}\n"
+            f"CONNECTION    : {headers.get('Connection')}\n"
+            f"CACHE-CONTROL : {headers.get('Cache-Control')}\n"
+            f"SEC-GPC       : {headers.get('Sec-GPC')}\n"
+            f"SEC-UA        : {headers.get('Sec-Ch-Ua')}\n"
+            f"SEC-UA-PLAT   : {headers.get('Sec-Ch-Ua-Platform')}\n"
+            f"SEC-UA-MOB    : {headers.get('Sec-Ch-Ua-Mobile')}\n"
+            f"SEC-F-DST     : {headers.get('Sec-Fetch-Dest')}\n"
+            f"SEC-F-USER    : {headers.get('Sec-Fetch-User')}\n"
+            f"SEC-F-MODE    : {headers.get('Sec-Fetch-Mode')}\n"
+            f"SEC-F-SITE    : {headers.get('Sec-Fetch-Site')}\n"
+            f"X-FORWARDED   : {headers.get('X-Forwarded-For')}\n"
+            f"X-REAL-IP     : {headers.get('X-Real-IP')}\n"
+            f"Content Preview: {content[:100]}..."
         )
         send_discord_notification(message)
         send_email(subject, message)
