@@ -172,15 +172,17 @@ def get_real_ip():
     x_forwarded_for = request.headers.get("X-Forwarded-For", "")
     ip_list = [ip.strip() for ip in x_forwarded_for.split(",") if ip.strip()]
 
-    # Append request.remote_addr as the last hop
-    if request.remote_addr:
-        ip_list.append(request.remote_addr)
+    # If there are no proxies in the chain, use the direct remote address
+    if not ip_list:
+        return request.remote_addr
 
-    # Reverse the list to check from closest to client to furthest
+    # Reverse the list to check from closest to client to furthest (last is client IP)
     for ip in reversed(ip_list):
         if not is_trusted_proxy(ip):
             return ip
-    return ip_list[0] if ip_list else "Unknown"
+
+    # If all IPs in the X-Forwarded-For chain are trusted proxies, return the last IP
+    return ip_list[-1] if ip_list else request.remote_addr
 
 def is_trusted_proxy(ip):
     """Check if the IP is in the list of trusted proxy ranges."""
