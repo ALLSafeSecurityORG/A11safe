@@ -6,6 +6,7 @@ from flask import request
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import ipaddress
 
 ATTACK_LOG = 'logs/attacks.log'
 GENERAL_LOG = 'logs/general.log'
@@ -165,16 +166,33 @@ def is_suspicious_content(content):
             return True
     return False
 
-def get_real_ip():
-    """Extract real client IP from X-Forwarded-For or Remote Addr."""
-    if "X-Forwarded-For" in request.headers:
-        forwarded_for = request.headers.get("X-Forwarded-For")
-        # May contain multiple IPs. The first is the client.
-        ip = forwarded_for.split(",")[0].strip()
-    else:
-        ip = request.remote_addr or "Unknown"
-    return ip
 
+def get_real_ip():
+    """Return the actual client IP address by validating trusted proxies."""
+    x_forwarded_for = request.headers.get("X-Forwarded-For", "")
+    ip_list = [ip.strip() for ip in x_forwarded_for.split(",") if ip.strip()]
+
+    # Append request.remote_addr as the last hop
+    if request.remote_addr:
+        ip_list.append(request.remote_addr)
+
+    # Reverse the list to check from closest to client to furthest
+    for ip in reversed(ip_list):
+        if not is_trusted_proxy(ip):
+            return ip
+    return ip_list[0] if ip_list else "Unknown"
+
+def is_trusted_proxy(ip):
+    """Check if the IP is in the list of trusted proxy ranges."""
+    try:
+        ip_obj = ipaddress.ip_address(ip)
+        for cidr in TRUSTED_PROXIES:
+            if ip_obj in ipaddress.ip_network(cidr):
+                return True
+    except ValueError:
+        pass
+    return False
+    
 def get_geo_info(ip):
     """Fetch geolocation data using a public API."""
     try:
