@@ -19,7 +19,7 @@ GEO_API = "http://ip-api.com/json/"
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "allsafeallsafe612@gmail.com")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "htsneaayrqwutldg")
 RECEIVER_EMAILS = os.getenv("RECEIVER_EMAILS", "unknownzero51@gmail.com,aryanbhandari2431@gmail.com").split(",")
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1371581428738953366/D1dZ3MWbVApZaeW3gJvNsH3pH1kO_m7jM1")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1368123901993025567/kFmLfrxYKqbAVJAbVWywIxjwQ0ThuoADykdSbwXqY7K_Op6gBVEPvLNdoXl0CXfYHLLL")
 
 # ----------------- Trusted Proxies -----------------
 TRUSTED_PROXIES = [
@@ -131,11 +131,25 @@ def detect_lfi():
     log_general_activity()
 
     lfi_patterns = [
-        r"(\.\./)+", r"etc/passwd", r"boot\.ini", r"win\.ini", r"proc/self/environ",
-        r"input_wrapper", r"data://", r"php://", r"expect://",
-        r"log/(apache|nginx|access|error)", r"(\%2e){2,}", r"(\%252e)+",
-        r"(?i)(\.\./)+.*(passwd|boot|win|log)"
+       r"(\.\./)+",                              # ../ traversal
+       r"(\.\.\\)+",                             # ..\ traversal (Windows)
+       r"(?:\.\./|\.\.\\)+",                     # generalized traversal
+       r"etc/passwd", r"etc/shadow",            # common Unix sensitive files
+       r"boot\.ini", r"win\.ini", r"proc/self/environ",  # other sensitive files
+       r"system32", r"windows", r"root",         # additional sensitive paths
+       r"input_wrapper", r"data://", r"php://", r"expect://",  # wrappers
+       r"log/(apache|nginx|access|error)",       # log file inclusion
+       r"(\%2e){2,}", r"(\%252e)+",              # encoded dot traversal
+       r"(?i)(\.\./)+.*(passwd|shadow|boot|win|log|environ|ini)",  # smart detection
+       r"(file|ftp|dict|gopher|ldap|php|zlib|data|glob|phar|ogg|expect)://",  # URL schemes
+       r"(?:/|\\)(?:[a-zA-Z0-9_\-\.]*\.\.){1,}/?", # path traversal variations
+       r"\.\w{2,4}$",                            # suspicious file extensions like .php, .ini
+       r"(?:%00|\x00)",                          # null byte injections
+       r"(?:\.\./)+[a-zA-Z0-9_\-\.]*",           # directory traversal attempts
+       r"(?:base64_encode|eval|system|shell_exec|exec|passthru|popen|proc_open)",  # RCE overlaps
     ]
+
+
 
     # Check path
     raw_path = request.full_path or request.path
