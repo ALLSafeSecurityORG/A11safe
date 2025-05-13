@@ -192,7 +192,7 @@ def is_trusted_proxy(ip):
     except ValueError:
         pass
     return False
-    
+
 def get_geo_info(ip):
     """Fetch geolocation data using a public API."""
     try:
@@ -211,98 +211,99 @@ def get_geo_info(ip):
 
 def log_content(content, filename):
     now = datetime.now()
-    ip = get_real_ip()
-    geo = get_geo_info(ip)
+    real_ip = get_real_ip()
+    proxy_ip = request.remote_addr or "Unknown"
+    geo = get_geo_info(real_ip)
+    
     user_agent = request.headers.get("User-Agent", "Unknown")
     referer = request.headers.get("Referer", "Unknown")
     method = request.method
     url = request.url
     headers = request.headers
-    proxy_ip = request.remote_addr or "Unknown"
-    real_ip = get_real_ip()
     extension = os.path.splitext(filename)[-1].lower()
     suspicious_filetype = extension in ['.php', '.html', '.js']
     suspicious_filename = bool(re.search(r"<script.*?>|javascript:|alert\s*\(", filename, re.IGNORECASE))
-
     suspicious = is_suspicious_content(content) or suspicious_filetype or suspicious_filename
     log_path = ATTACK_LOG if suspicious else GENERAL_LOG
 
-    with open(log_path, 'a') as f:
-        if suspicious:
-            f.write(f"[⚠️ ATTACK DETECTED] [{now}]\n")
-        else:
-            f.write(f"[GENERAL NOTE SAVED] [{now}]\n")
-        f.write(f"Filename: {filename}\n")
-        f.write(f"Content Preview: {content[:100]}...\n")
-        f.write("-" * 60 + "\n")
-        f.write(
-            f"REAL_IP       : {real_ip}\n"
-            f"PROXY_IP      : {proxy_ip}\n"
-            f"GEOLOCATION   : {geo}\n"
-            f"FILENAME      : {filename}\n"
-            f"METHOD        : {method}\n"
-            f"URL           : {url}\n"
-            f"USER-AGENT    : {headers.get('User-Agent')}\n"
-            f"REFERRER      : {request.referrer}\n"
-            f"HOST          : {headers.get('Host')}\n"
-            f"ORIGIN        : {headers.get('Origin')}\n"
-            f"COOKIE        : {headers.get('Cookie')}\n"
-            f"ACCEPT        : {headers.get('Accept')}\n"
-            f"ACCEPT-LANG   : {headers.get('Accept-Language')}\n"
-            f"ACCEPT-ENC    : {headers.get('Accept-Encoding')}\n"
-            f"CONTENT-TYPE  : {headers.get('Content-Type')}\n"
-            f"CONTENT-LEN   : {headers.get('Content-Length')}\n"
-            f"CONNECTION    : {headers.get('Connection')}\n"
-            f"CACHE-CONTROL : {headers.get('Cache-Control')}\n"
-            f"SEC-GPC       : {headers.get('Sec-GPC')}\n"
-            f"SEC-UA        : {headers.get('Sec-Ch-Ua')}\n"
-            f"SEC-UA-PLAT   : {headers.get('Sec-Ch-Ua-Platform')}\n"
-            f"SEC-UA-MOB    : {headers.get('Sec-Ch-Ua-Mobile')}\n"
-            f"SEC-F-DST     : {headers.get('Sec-Fetch-Dest')}\n"
-            f"SEC-F-USER    : {headers.get('Sec-Fetch-User')}\n"
-            f"SEC-F-MODE    : {headers.get('Sec-Fetch-Mode')}\n"
-            f"SEC-F-SITE    : {headers.get('Sec-Fetch-Site')}\n"
-            f"X-FORWARDED   : {headers.get('X-Forwarded-For')}\n"
-            f"X-REAL-IP     : {headers.get('X-Real-IP')}\n"
-            f"{'-'*50}\n"
-        )        
-        f.write("=" * 60 + "\n\n")
+    log_header = "[⚠️ ATTACK DETECTED]" if suspicious else "[GENERAL NOTE SAVED]"
+    
+    log_lines = [
+        f"{log_header} [{now}]",
+        f"Filename: {filename}",
+        f"Content Preview: {content[:100]}...",
+        "-" * 60,
+        f"REAL_IP       : {real_ip}",
+        f"PROXY_IP      : {proxy_ip}",
+        f"GEOLOCATION   : {geo}",
+        f"FILENAME      : {filename}",
+        f"METHOD        : {method}",
+        f"URL           : {url}",
+        f"USER-AGENT    : {headers.get('User-Agent')}",
+        f"REFERRER      : {request.referrer}",
+        f"HOST          : {headers.get('Host')}",
+        f"ORIGIN        : {headers.get('Origin')}",
+        f"COOKIE        : {headers.get('Cookie')}",
+        f"ACCEPT        : {headers.get('Accept')}",
+        f"ACCEPT-LANG   : {headers.get('Accept-Language')}",
+        f"ACCEPT-ENC    : {headers.get('Accept-Encoding')}",
+        f"CONTENT-TYPE  : {headers.get('Content-Type')}",
+        f"CONTENT-LEN   : {headers.get('Content-Length')}",
+        f"CONNECTION    : {headers.get('Connection')}",
+        f"CACHE-CONTROL : {headers.get('Cache-Control')}",
+        f"SEC-GPC       : {headers.get('Sec-GPC')}",
+        f"SEC-UA        : {headers.get('Sec-Ch-Ua')}",
+        f"SEC-UA-PLAT   : {headers.get('Sec-Ch-Ua-Platform')}",
+        f"SEC-UA-MOB    : {headers.get('Sec-Ch-Ua-Mobile')}",
+        f"SEC-F-DST     : {headers.get('Sec-Fetch-Dest')}",
+        f"SEC-F-USER    : {headers.get('Sec-Fetch-User')}",
+        f"SEC-F-MODE    : {headers.get('Sec-Fetch-Mode')}",
+        f"SEC-F-SITE    : {headers.get('Sec-Fetch-Site')}",
+        f"X-FORWARDED   : {headers.get('X-Forwarded-For')}",
+        f"X-REAL-IP     : {headers.get('X-Real-IP')}",
+        "-" * 50,
+        "=" * 60,
+        ""
+    ]
 
-    # Send alerts
+    with open(log_path, 'a') as f:
+        f.write("\n".join(log_lines))
+
+    # Send alerts if suspicious
     if suspicious:
         subject = "[Locater Alert] Suspicious Content Detected"
-        message = (
-            f"⚠️ **Suspicious Content Detected**\n"
-            f"Time: {now}\n"
-            f"REAL_IP       : {real_ip}\n"
-            f"PROXY_IP      : {proxy_ip}\n"
-            f"GEOLOCATION   : {geo}\n"
-            f"FILENAME      : {filename}\n"
-            f"METHOD        : {method}\n"
-            f"URL           : {url}\n"
-            f"USER-AGENT    : {headers.get('User-Agent')}\n"
-            f"REFERRER      : {request.referrer}\n"
-            f"HOST          : {headers.get('Host')}\n"
-            f"ORIGIN        : {headers.get('Origin')}\n"
-            f"COOKIE        : {headers.get('Cookie')}\n"
-            f"ACCEPT        : {headers.get('Accept')}\n"
-            f"ACCEPT-LANG   : {headers.get('Accept-Language')}\n"
-            f"ACCEPT-ENC    : {headers.get('Accept-Encoding')}\n"
-            f"CONTENT-TYPE  : {headers.get('Content-Type')}\n"
-            f"CONTENT-LEN   : {headers.get('Content-Length')}\n"
-            f"CONNECTION    : {headers.get('Connection')}\n"
-            f"CACHE-CONTROL : {headers.get('Cache-Control')}\n"
-            f"SEC-GPC       : {headers.get('Sec-GPC')}\n"
-            f"SEC-UA        : {headers.get('Sec-Ch-Ua')}\n"
-            f"SEC-UA-PLAT   : {headers.get('Sec-Ch-Ua-Platform')}\n"
-            f"SEC-UA-MOB    : {headers.get('Sec-Ch-Ua-Mobile')}\n"
-            f"SEC-F-DST     : {headers.get('Sec-Fetch-Dest')}\n"
-            f"SEC-F-USER    : {headers.get('Sec-Fetch-User')}\n"
-            f"SEC-F-MODE    : {headers.get('Sec-Fetch-Mode')}\n"
-            f"SEC-F-SITE    : {headers.get('Sec-Fetch-Site')}\n"
-            f"X-FORWARDED   : {headers.get('X-Forwarded-For')}\n"
-            f"X-REAL-IP     : {headers.get('X-Real-IP')}\n"
+        message = "\n".join([
+            "⚠️ **Suspicious Content Detected**",
+            f"Time: {now}",
+            f"REAL_IP       : {real_ip}",
+            f"PROXY_IP      : {proxy_ip}",
+            f"GEOLOCATION   : {geo}",
+            f"FILENAME      : {filename}",
+            f"METHOD        : {method}",
+            f"URL           : {url}",
+            f"USER-AGENT    : {headers.get('User-Agent')}",
+            f"REFERRER      : {request.referrer}",
+            f"HOST          : {headers.get('Host')}",
+            f"ORIGIN        : {headers.get('Origin')}",
+            f"COOKIE        : {headers.get('Cookie')}",
+            f"ACCEPT        : {headers.get('Accept')}",
+            f"ACCEPT-LANG   : {headers.get('Accept-Language')}",
+            f"ACCEPT-ENC    : {headers.get('Accept-Encoding')}",
+            f"CONTENT-TYPE  : {headers.get('Content-Type')}",
+            f"CONTENT-LEN   : {headers.get('Content-Length')}",
+            f"CONNECTION    : {headers.get('Connection')}",
+            f"CACHE-CONTROL : {headers.get('Cache-Control')}",
+            f"SEC-GPC       : {headers.get('Sec-GPC')}",
+            f"SEC-UA        : {headers.get('Sec-Ch-Ua')}",
+            f"SEC-UA-PLAT   : {headers.get('Sec-Ch-Ua-Platform')}",
+            f"SEC-UA-MOB    : {headers.get('Sec-Ch-Ua-Mobile')}",
+            f"SEC-F-DST     : {headers.get('Sec-Fetch-Dest')}",
+            f"SEC-F-USER    : {headers.get('Sec-Fetch-User')}",
+            f"SEC-F-MODE    : {headers.get('Sec-Fetch-Mode')}",
+            f"SEC-F-SITE    : {headers.get('Sec-Fetch-Site')}",
+            f"X-FORWARDED   : {headers.get('X-Forwarded-For')}",
+            f"X-REAL-IP     : {headers.get('X-Real-IP')}",
             f"Content Preview: {content[:100]}..."
-        )
+        ])
         send_discord_notification(message)
         send_email(subject, message)
