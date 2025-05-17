@@ -8,6 +8,11 @@
 
 **Locater** is a lightweight Flask-based honeypot system designed to detect, log, and alert on suspicious or malicious file uploads and payloads. It inspects the content of uploaded files, logs activity with geolocation metadata, and sends alerts via **Email** and **Discord** when potential threats are detected.
 
+## 🔗 Live Demo
+
+Check out the live website here: [My Project Site](https://a11safe.onrender.com/)
+
+
 ---
 
 ## 🔍 Features
