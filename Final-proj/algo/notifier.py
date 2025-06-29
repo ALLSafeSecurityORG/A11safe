@@ -7,11 +7,10 @@ from datetime import datetime
 import os
 
 # Load sensitive data from environment variables
-SENDER_EMAIL = os.getenv("SENDER_EMAIL", "allsafeallsafe612@gmail.com")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "SuperSecure@123")
-RECEIVER_EMAILS = os.getenv("RECEIVER_EMAILS", "unknownzero51@gmail.com,aryanbhandari2431@gmail.com").split(",")
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1367935673419694290/ZsrM2jsXscoda4GrJoPNYRNScJkW8tfa_FmlW5lfEp86VR4n_-AoDtbsRNizvaerRDvN")
-
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "email_id")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "password_of_email_senders")
+RECEIVER_EMAILS = os.getenv("RECEIVER_EMAILS", "emails_seprated_by_commas eg. email1,email2").split(",")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "web_hook_link_here")
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 
