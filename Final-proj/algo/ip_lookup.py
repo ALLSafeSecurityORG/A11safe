@@ -11,7 +11,7 @@ ip_lookup_bp = Blueprint('ip_lookup', __name__)
 IP_REGEX = r"^(?:\d{1,3}\.){3}\d{1,3}$"
 
 # Geolocation API config
-GEO_API_KEY = "594cd859dbb84ec8aa4597200216b506"
+GEO_API_KEY = "your_api_key"
 GEO_API_URL = "https://api.ipgeolocation.io/ipgeo"
 
 def log_attack(ip, reason):
