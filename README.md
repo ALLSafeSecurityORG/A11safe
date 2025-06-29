@@ -127,3 +127,4 @@ MIT License
 ## 👨‍💻 Author
 
 Aryan Bhandari — [GitHub](https://github.com/aryanbhandari247)
+Priyanshu — [GitHub](https://github.com/priyanxshu999)
