@@ -85,19 +85,6 @@ RECEIVER_EMAILS=receiver1@example.com,receiver2@example.com
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 ```
 
----
-
-## 📥 Example `.env` File
-
-```env
-SENDER_EMAIL=allsafeallsafe612@gmail.com
-EMAIL_PASSWORD=htsneaayrqwutldg
-RECEIVER_EMAILS=unknownzero51@gmail.com,aryanbhandari2431@gmail.com
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
-```
-
----
-
 ## 🏁 Run Locally
 
 ```bash
